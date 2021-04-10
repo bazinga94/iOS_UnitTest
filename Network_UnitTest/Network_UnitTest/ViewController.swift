@@ -16,19 +16,24 @@ class ViewController: UIViewController {
 
 	@IBAction func networkTestButtonAction(_ sender: Any) {
 		let networkManager = NetworkManager()
+
 		networkManager.fetchRequest(url: JokesAPI.randomJokes.url, type: .GET) { (result: Result<JokeResponse, APIError>) in
 			switch result {
 				case .success(let model):
 					print(model)
-					DispatchQueue.main.async {
-						let alert = UIAlertController.init(title: "Result", message: model.value.joke, preferredStyle: .alert)
-						let cancel = UIAlertAction(title: "취소", style: .cancel, handler: nil)
-						alert.addAction(cancel)
-						self.present(alert, animated: false, completion: nil)
-					}
+					self.showAlert(message: model.value.joke)
 				case .failure(let error):
 					print(error)
 			}
+		}
+	}
+
+	private func showAlert(message: String) {
+		DispatchQueue.main.async {
+			let alert = UIAlertController.init(title: "Result", message: message, preferredStyle: .alert)
+			let cancel = UIAlertAction(title: "취소", style: .cancel, handler: nil)
+			alert.addAction(cancel)
+			self.present(alert, animated: false, completion: nil)
 		}
 	}
 }
