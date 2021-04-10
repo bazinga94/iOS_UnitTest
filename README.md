@@ -1,3 +1,3 @@
 # iOS_UnitTest
-Unit Test Sample Code
-- Network(URLSession)
+Swift Unit Test Sample Code
+- Network_UnitTest(with URLSession)
