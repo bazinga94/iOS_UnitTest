@@ -69,7 +69,7 @@ class Network_UnitTestTests: XCTestCase {
     }
 
     func testExample_success() throws {
-		let expectation = XCTestExpectation()
+		let expectation = XCTestExpectation()	// 비동기 작업이 완료될 때 까지 대기 하다가 처리 필요
 		let response = try? JSONDecoder().decode(JokeResponse.self, from: JokesAPI.randomJokes.sampleData)
 
 		networkManager.fetchRequest(url: JokesAPI.randomJokes.url, type: .GET) { (result: Result<JokeResponse, APIError>) in
@@ -80,10 +80,10 @@ class Network_UnitTestTests: XCTestCase {
 				case .failure(_):
 					XCTFail()
 			}
-			expectation.fulfill()
+			expectation.fulfill()	// 작업 완료 알림
 		}
 
-		wait(for: [expectation], timeout: 2.0)
+		wait(for: [expectation], timeout: 2.0)	// 이 위치에서 작업이 완료될 때 까지 2초 대기
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
@@ -111,5 +111,4 @@ class Network_UnitTestTests: XCTestCase {
             // Put the code you want to measure the time of here.
         }
     }
-
 }
