@@ -1,13 +1,13 @@
 //
-//  NetworkUnitTestUITests.swift
-//  NetworkUnitTestUITests
+//  Network_UnitTestUITests.swift
+//  Network_UnitTestUITests
 //
 //  Created by Jongho Lee on 2021/04/10.
 //
 
 import XCTest
 
-class NetworkUnitTestUITests: XCTestCase {
+class Network_UnitTestUITests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.

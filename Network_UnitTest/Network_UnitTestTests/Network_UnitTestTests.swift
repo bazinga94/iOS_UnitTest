@@ -1,14 +1,14 @@
 //
-//  NetworkUnitTestTests.swift
-//  NetworkUnitTestTests
+//  Network_UnitTestTests.swift
+//  Network_UnitTestTests
 //
 //  Created by Jongho Lee on 2021/04/10.
 //
 
 import XCTest
-@testable import NetworkUnitTest
+@testable import Network_UnitTest
 
-class NetworkUnitTestTests: XCTestCase {
+class Network_UnitTestTests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
