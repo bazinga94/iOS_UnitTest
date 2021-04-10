@@ -7,56 +7,51 @@
 import Foundation
 
 // 우아한 형제들 기술블로그 참고 https://woowabros.github.io/swift/2020/12/20/ios-networking-and-testing.html
-struct JokeReponse: Decodable {
-	let type: String
-	let value: Joke
+
+enum APIError: Error {
+	case unknown
+	case httpStatus
+	case decodingJSON
+	case dataNil
+//	var errorDescription: String? { "unknownError" }
 }
 
-struct Joke: Decodable {
-	let id: Int
-	let joke: String
-	let categories: [String]
+enum HttpMethod: String {
+	case GET
+	case POST
 }
 
-enum JokesAPI {
-	case randomJokes
-
-	static let baseURL = "https://api.icndb.com/"
-	var path: String { "jokes/random" }
-	var url: URL { URL(string: JokesAPI.baseURL + path)! }
-}
-
-enum APIError: LocalizedError {
-	case unknownError
-	var errorDescription: String? { "unknownError" }
-}
-
-class JokesAPIProvider {
+class NetworkManager {
 
 	let session: URLSession
+
 	init(session: URLSession = .shared) {
 		self.session = session
 	}
 
-	func fetchRandomJoke(completion: @escaping (Result<Joke, Error>) -> Void) {
-		let request = URLRequest(url: JokesAPI.randomJokes.url)
+	func fetchRequest<T: Decodable>(url: URL, type: HttpMethod, body: String? = nil, completion: @escaping (Result<T, APIError>) -> Void) {
+		var request = URLRequest(url: url)
+		request.httpMethod = type.rawValue
+		request.httpBody = body?.data(using: .utf8)
 
 		let task: URLSessionDataTask = session
 			.dataTask(with: request) { data, urlResponse, error in
 				guard let response = urlResponse as? HTTPURLResponse,
 					  (200...399).contains(response.statusCode) else {
-					completion(.failure(error ?? APIError.unknownError))
+					completion(.failure(.httpStatus))
 					return
 				}
 
-				if let data = data,
-				   let jokeResponse = try? JSONDecoder().decode(JokeReponse.self, from: data) {
-					completion(.success(jokeResponse.value))
+				guard let data = data else {
+					return completion(.failure(.dataNil))
+				}
+
+				guard let model = try? JSONDecoder().decode(T.self, from: data) else {
+					completion(.failure(.decodingJSON))
 					return
 				}
-				completion(.failure(APIError.unknownError))
+				completion(.success(model))
 			}
-
 		task.resume()
 	}
 }
