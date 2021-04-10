@@ -23,4 +23,19 @@ enum JokesAPI {
 	static let baseURL = "https://api.icndb.com/"
 	var path: String { "jokes/random" }
 	var url: URL { URL(string: JokesAPI.baseURL + path)! }
+
+	var sampleData: Data {
+		Data(
+			"""
+            {
+                "type": "success",
+                    "value": {
+                    "id": 459,
+                    "joke": "Chuck Norris can solve the Towers of Hanoi in one move.",
+                    "categories": []
+                }
+            }
+            """.utf8
+		)
+	}
 }

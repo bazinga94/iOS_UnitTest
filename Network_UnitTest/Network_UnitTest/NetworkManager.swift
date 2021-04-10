@@ -8,6 +8,12 @@ import Foundation
 
 // 우아한 형제들 기술블로그 참고 https://woowabros.github.io/swift/2020/12/20/ios-networking-and-testing.html
 
+protocol URLSessionProtocol {
+	func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask
+}
+extension URLSession: URLSessionProtocol {
+}
+
 enum APIError: Error {
 	case unknown
 	case httpStatus
@@ -23,9 +29,9 @@ enum HttpMethod: String {
 
 class NetworkManager {
 
-	let session: URLSession
+	let session: URLSessionProtocol
 
-	init(session: URLSession = .shared) {
+	init(session: URLSessionProtocol = URLSession.shared) {
 		self.session = session
 	}
 
