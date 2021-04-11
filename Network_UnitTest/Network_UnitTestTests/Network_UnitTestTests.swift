@@ -83,7 +83,7 @@ class Network_UnitTestTests: XCTestCase {
 			expectation.fulfill()	// 작업 완료 알림
 		}
 
-		wait(for: [expectation], timeout: 2.0)	// 이 위치에서 작업이 완료될 때 까지 2초 대기
+		wait(for: [expectation], timeout: 3.0)	// 이 위치에서 작업이 완료될 때 까지 2초 대기
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
@@ -102,7 +102,7 @@ class Network_UnitTestTests: XCTestCase {
 			expectation.fulfill()
 		}
 
-		wait(for: [expectation], timeout: 2.0)
+		wait(for: [expectation], timeout: 3.0)
 	}
 
     func testPerformanceExample() throws {
