@@ -27,14 +27,48 @@ enum HttpMethod: String {
 	case POST
 }
 
-class NetworkManager {
+protocol NetworkManagerProtocol {
+	var session: URLSessionProtocol { get }
+	func fetchRequest<T: Decodable>(url: URL, type: HttpMethod, body: String, completion: @escaping (Result<T, APIError>) -> Void)
+}
 
-	let session: URLSessionProtocol
-
-	init(session: URLSessionProtocol = URLSession.shared) {
-		self.session = session
+extension NetworkManagerProtocol {
+	var session: URLSessionProtocol {
+		return URLSession.shared
 	}
 
+//	init(session: URLSessionProtocol = URLSession.shared) {
+//		self.session = session
+//	}	// Class가 아니라 Protocol로 사용
+
+//	func fetchRequest<T: Decodable>(url: URL, type: HttpMethod, body: String? = nil, completion: @escaping (Result<T, APIError>) -> Void) {
+//		var request = URLRequest(url: url)
+//		request.httpMethod = type.rawValue
+//		request.httpBody = body?.data(using: .utf8)
+//
+//		let task: URLSessionDataTask = session
+//			.dataTask(with: request) { data, urlResponse, error in
+//				guard let response = urlResponse as? HTTPURLResponse,
+//					  (200...399).contains(response.statusCode) else {
+//					completion(.failure(.httpStatus))
+//					return
+//				}
+//
+//				guard let data = data else {
+//					return completion(.failure(.dataNil))
+//				}
+//
+//				guard let model = try? JSONDecoder().decode(T.self, from: data) else {
+//					completion(.failure(.decodingJSON))
+//					return
+//				}
+//				completion(.success(model))
+//			}
+//		task.resume()
+//	}
+}
+
+class NetworkManager: NetworkManagerProtocol {
 	func fetchRequest<T: Decodable>(url: URL, type: HttpMethod, body: String? = nil, completion: @escaping (Result<T, APIError>) -> Void) {
 		var request = URLRequest(url: url)
 		request.httpMethod = type.rawValue
@@ -59,5 +93,5 @@ class NetworkManager {
 				completion(.success(model))
 			}
 		task.resume()
-	}
+	}	// 왜 에러가 생기지?!
 }
