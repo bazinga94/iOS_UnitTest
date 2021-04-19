@@ -27,14 +27,80 @@ enum HttpMethod: String {
 	case POST
 }
 
-protocol NetworkManagerProtocol {
-	var session: URLSessionProtocol { get }
+class NetworkManager: NetworkProtocol {
+	var session: URLSessionProtocol
+
+	required init(session: URLSessionProtocol) {
+		self.session = session
+	}
+
+	func fetchRequest<T>(url: URL, type: HttpMethod, body: String, completion: @escaping (Result<T, APIError>) -> Void) where T : Decodable {
+		var request = URLRequest(url: url)
+		request.httpMethod = type.rawValue
+		request.httpBody = body.data(using: .utf8)
+
+		let task: URLSessionDataTask = session
+			.dataTask(with: request) { data, urlResponse, error in
+				guard let response = urlResponse as? HTTPURLResponse,
+					  (200...399).contains(response.statusCode) else {
+					completion(.failure(.httpStatus))
+					return
+				}
+
+				guard let data = data else {
+					return completion(.failure(.dataNil))
+				}
+
+				guard let model = try? JSONDecoder().decode(T.self, from: data) else {
+					completion(.failure(.decodingJSON))
+					return
+				}
+				completion(.success(model))
+			}
+		task.resume()
+	}
+}
+
+protocol NetworkProtocol {
+	init(session: URLSessionProtocol)
+	var session: URLSessionProtocol { get set }
 	func fetchRequest<T: Decodable>(url: URL, type: HttpMethod, body: String, completion: @escaping (Result<T, APIError>) -> Void)
 }
 
-extension NetworkManagerProtocol {
+extension NetworkProtocol {
+	init(session: URLSessionProtocol = URLSession.shared) {
+		self.init(session: session)
+		self.session = session
+	}
+
 	var session: URLSessionProtocol {
 		return URLSession.shared
+	}
+
+	func fetchRequest<T>(url: URL, type: HttpMethod, body: String? = nil, completion: @escaping (Result<T, APIError>) -> Void) where T : Decodable {
+		var request = URLRequest(url: url)
+		request.httpMethod = type.rawValue
+		request.httpBody = body?.data(using: .utf8)
+
+		let task: URLSessionDataTask = session
+			.dataTask(with: request) { data, urlResponse, error in
+				guard let response = urlResponse as? HTTPURLResponse,
+					  (200...399).contains(response.statusCode) else {
+					completion(.failure(.httpStatus))
+					return
+				}
+
+				guard let data = data else {
+					return completion(.failure(.dataNil))
+				}
+
+				guard let model = try? JSONDecoder().decode(T.self, from: data) else {
+					completion(.failure(.decodingJSON))
+					return
+				}
+				completion(.success(model))
+			}
+		task.resume()
 	}
 
 //	init(session: URLSessionProtocol = URLSession.shared) {
@@ -68,30 +134,31 @@ extension NetworkManagerProtocol {
 //	}
 }
 
-class NetworkManager: NetworkManagerProtocol {
-	func fetchRequest<T: Decodable>(url: URL, type: HttpMethod, body: String? = nil, completion: @escaping (Result<T, APIError>) -> Void) {
-		var request = URLRequest(url: url)
-		request.httpMethod = type.rawValue
-		request.httpBody = body?.data(using: .utf8)
-
-		let task: URLSessionDataTask = session
-			.dataTask(with: request) { data, urlResponse, error in
-				guard let response = urlResponse as? HTTPURLResponse,
-					  (200...399).contains(response.statusCode) else {
-					completion(.failure(.httpStatus))
-					return
-				}
-
-				guard let data = data else {
-					return completion(.failure(.dataNil))
-				}
-
-				guard let model = try? JSONDecoder().decode(T.self, from: data) else {
-					completion(.failure(.decodingJSON))
-					return
-				}
-				completion(.success(model))
-			}
-		task.resume()
-	}	// 왜 에러가 생기지?!
-}
+//class NetworkManager {
+//
+//	func fetchRequest<T: Decodable>(url: URL, type: HttpMethod, body: String? = nil, completion: @escaping (Result<T, APIError>) -> Void) {
+//		var request = URLRequest(url: url)
+//		request.httpMethod = type.rawValue
+//		request.httpBody = body?.data(using: .utf8)
+//
+//		let task: URLSessionDataTask = session
+//			.dataTask(with: request) { data, urlResponse, error in
+//				guard let response = urlResponse as? HTTPURLResponse,
+//					  (200...399).contains(response.statusCode) else {
+//					completion(.failure(.httpStatus))
+//					return
+//				}
+//
+//				guard let data = data else {
+//					return completion(.failure(.dataNil))
+//				}
+//
+//				guard let model = try? JSONDecoder().decode(T.self, from: data) else {
+//					completion(.failure(.decodingJSON))
+//					return
+//				}
+//				completion(.success(model))
+//			}
+//		task.resume()
+//	}	// 왜 에러가 생기지?!
+//}
