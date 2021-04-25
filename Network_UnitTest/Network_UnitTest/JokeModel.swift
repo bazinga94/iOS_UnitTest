@@ -45,7 +45,7 @@ struct JokesAPI: NetworkInterface {
 	typealias Response = JokeResponse
 
 	static let baseURL = "https://api.icndb.com/"
-	var path: String { "jokes/random" }
+	private var path: String { "jokes/random" }
 	var url: URL { URL(string: JokesAPI.baseURL + path)! }
 
 	var responseSample: Data {

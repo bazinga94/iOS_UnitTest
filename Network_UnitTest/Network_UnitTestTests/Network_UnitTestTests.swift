@@ -30,12 +30,12 @@ class MockURLSession: URLSessionProtocol {
 				  completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
 
 		// 성공시 callback 으로 넘겨줄 response
-		let successResponse = HTTPURLResponse(url: JokesAPI.randomJokes.url,
+		let successResponse = HTTPURLResponse(url: JokesAPI().url,
 											  statusCode: 200,
 											  httpVersion: "2",
 											  headerFields: nil)
 		// 실패시 callback 으로 넘겨줄 response
-		let failureResponse = HTTPURLResponse(url: JokesAPI.randomJokes.url,
+		let failureResponse = HTTPURLResponse(url: JokesAPI().url,
 											  statusCode: 400,
 											  httpVersion: "2",
 											  headerFields: nil)
@@ -47,7 +47,7 @@ class MockURLSession: URLSessionProtocol {
 			if self.makeRequestFail {
 				completionHandler(nil, failureResponse, nil)
 			} else {
-				completionHandler(JokesAPI.randomJokes.sampleData, successResponse, nil)
+				completionHandler(JokesAPI().responseSample, successResponse, nil)
 			}
 		}
 		self.sessionDataTask = sessionDataTask
@@ -70,9 +70,9 @@ class Network_UnitTestTests: XCTestCase {
 
     func testExample_success() throws {
 		let expectation = XCTestExpectation()	// 비동기 작업이 완료될 때 까지 대기 하다가 처리 필요
-		let response = try? JSONDecoder().decode(JokeResponse.self, from: JokesAPI.randomJokes.sampleData)
+		let response = try? JSONDecoder().decode(JokeResponse.self, from: JokesAPI().responseSample)
 
-		networkManager.fetchRequest(url: JokesAPI.randomJokes.url, type: .GET) { (result: Result<JokeResponse, APIError>) in
+		networkManager.fetch(method: .GET, request: JokesAPI()) { (result: Result<JokesAPI.Response, APIError>) in
 			switch result {
 				case .success(let model):
 					XCTAssertEqual(model.value.id, response?.value.id)
@@ -92,7 +92,7 @@ class Network_UnitTestTests: XCTestCase {
 		networkManager = .init(session: MockURLSession(makeRequestFail: true))
 		let expectation = XCTestExpectation()
 
-		networkManager.fetchRequest(url: JokesAPI.randomJokes.url, type: .GET) { (result: Result<JokeResponse, APIError>) in
+		networkManager.fetch(method: .GET, request: JokesAPI()) { (result: Result<JokesAPI.Response, APIError>) in
 			switch result {
 				case .success:
 					XCTFail()
