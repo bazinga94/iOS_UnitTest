@@ -6,17 +6,39 @@
 //
 import Foundation
 
-struct JokeResponse: APIResponse {
-	struct Joke: Decodable {
-		let id: Int
-		let joke: String
-		let categories: [String]
+struct JokesAPI: NetworkInterface {
+	internal typealias Response = JokeResponse
+
+	static let baseURL = "https://api.icndb.com/"
+	private var path: String { "jokes/random" }
+	var url: URL { URL(string: JokesAPI.baseURL + path)! }
+
+	struct JokeResponse: APIResponse {
+		struct Joke: Decodable {
+			let id: Int
+			let joke: String
+			let categories: [String]
+		}
+
+		let type: String
+		let value: Joke
 	}
 
-	let type: String
-	let value: Joke
+	var responseSample: Data {
+		Data(
+			"""
+			{
+				"type": "success",
+				"value": {
+					"id": 459,
+					"joke": "Chuck Norris can solve the Towers of Hanoi in one move.",
+					"categories": []
+				}
+			}
+			""".utf8
+		)
+	}
 }
-
 
 //enum JokesAPI {
 //	case randomJokes
@@ -40,26 +62,3 @@ struct JokeResponse: APIResponse {
 //		)
 //	}
 //}
-
-struct JokesAPI: NetworkInterface {
-	typealias Response = JokeResponse
-
-	static let baseURL = "https://api.icndb.com/"
-	private var path: String { "jokes/random" }
-	var url: URL { URL(string: JokesAPI.baseURL + path)! }
-
-	var responseSample: Data {
-		Data(
-			"""
-			{
-				"type": "success",
-				"value": {
-					"id": 459,
-					"joke": "Chuck Norris can solve the Towers of Hanoi in one move.",
-					"categories": []
-				}
-			}
-			""".utf8
-		)
-	}
-}

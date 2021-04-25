@@ -70,7 +70,7 @@ class Network_UnitTestTests: XCTestCase {
 
     func testExample_success() throws {
 		let expectation = XCTestExpectation()	// 비동기 작업이 완료될 때 까지 대기 하다가 처리 필요
-		let response = try? JSONDecoder().decode(JokeResponse.self, from: JokesAPI().responseSample)
+		let response = try? JSONDecoder().decode(JokesAPI.Response.self, from: JokesAPI().responseSample)
 
 		networkManager.fetch(method: .GET, request: JokesAPI()) { (result: Result<JokesAPI.Response, APIError>) in
 			switch result {
