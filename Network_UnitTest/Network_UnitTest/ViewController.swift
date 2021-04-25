@@ -43,7 +43,7 @@ class ViewController: UIViewController {
 	private func showAlert(message: String) {
 		DispatchQueue.main.async {
 			let alert = UIAlertController.init(title: "Result", message: message, preferredStyle: .alert)
-			let cancel = UIAlertAction(title: "취소", style: .cancel, handler: nil)
+			let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
 			alert.addAction(cancel)
 			self.present(alert, animated: false, completion: nil)
 		}
