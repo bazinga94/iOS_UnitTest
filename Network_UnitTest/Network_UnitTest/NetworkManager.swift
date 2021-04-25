@@ -18,7 +18,8 @@ extension URLSession: URLSessionProtocol {
 protocol NetworkProtocol {
 	init(session: URLSessionProtocol)
 	var session: URLSessionProtocol { get set }
-	func fetchRequest<T: Decodable>(url: URL, type: HttpMethod, body: String, completion: @escaping ResultCallback<T>)
+	func fetch<T: NetworkInterface & RequestableBody>(method: HttpMethod, request: T, completion: @escaping ResultCallback<T.Response>)
+	func fetch<T: NetworkInterface>(method: HttpMethod, request: T, completion: @escaping ResultCallback<T.Response>)
 }
 
 extension NetworkProtocol {
@@ -30,14 +31,29 @@ extension NetworkProtocol {
 	var session: URLSessionProtocol {
 		return URLSession.shared
 	}
+}
 
-	func fetchRequest<T>(url: URL, type: HttpMethod, body: String? = nil, completion: @escaping (Result<T, APIError>) -> Void) where T : Decodable {
-		var request = URLRequest(url: url)
-		request.httpMethod = type.rawValue
-		request.httpBody = body?.data(using: .utf8)
+class NetworkManager: NetworkProtocol {
+
+	var session: URLSessionProtocol
+
+	required init(session: URLSessionProtocol) {
+		self.session = session
+	}
+
+	/// POST method network request
+	func fetch<T>(method: HttpMethod = .POST, request: T, completion: @escaping ResultCallback<T.Response>) where T : NetworkInterface, T : RequestableBody {
+
+		guard let encodedModel = try? JSONEncoder().encode(request.body) else {
+			completion(.failure(.encodingModel))
+			return
+		}
+		var urlRequest = URLRequest(url: request.url)
+		urlRequest.httpMethod = method.rawValue
+		urlRequest.httpBody = encodedModel
 
 		let task: URLSessionDataTask = session
-			.dataTask(with: request) { data, urlResponse, error in
+			.dataTask(with: urlRequest) { data, urlResponse, error in
 				guard let response = urlResponse as? HTTPURLResponse,
 					  (200...399).contains(response.statusCode) else {
 					completion(.failure(.httpStatus))
@@ -48,7 +64,7 @@ extension NetworkProtocol {
 					return completion(.failure(.dataNil))
 				}
 
-				guard let model = try? JSONDecoder().decode(T.self, from: data) else {
+				guard let model = try? JSONDecoder().decode(T.Response.self, from: data) else {
 					completion(.failure(.decodingJSON))
 					return
 				}
@@ -56,22 +72,15 @@ extension NetworkProtocol {
 			}
 		task.resume()
 	}
-}
 
-class NetworkManager: NetworkProtocol {
-	var session: URLSessionProtocol
+	/// GET method network request
+	func fetch<T>(method: HttpMethod = .GET, request: T, completion: @escaping ResultCallback<T.Response>) where T : NetworkInterface {
 
-	required init(session: URLSessionProtocol) {
-		self.session = session
-	}
-
-	func fetchRequest<T>(url: URL, type: HttpMethod, body: String, completion: @escaping (Result<T, APIError>) -> Void) where T : Decodable {
-		var request = URLRequest(url: url)
-		request.httpMethod = type.rawValue
-		request.httpBody = body.data(using: .utf8)
+		var urlRequest = URLRequest(url: request.url)
+		urlRequest.httpMethod = method.rawValue
 
 		let task: URLSessionDataTask = session
-			.dataTask(with: request) { data, urlResponse, error in
+			.dataTask(with: urlRequest) { data, urlResponse, error in
 				guard let response = urlResponse as? HTTPURLResponse,
 					  (200...399).contains(response.statusCode) else {
 					completion(.failure(.httpStatus))
@@ -82,7 +91,7 @@ class NetworkManager: NetworkProtocol {
 					return completion(.failure(.dataNil))
 				}
 
-				guard let model = try? JSONDecoder().decode(T.self, from: data) else {
+				guard let model = try? JSONDecoder().decode(T.Response.self, from: data) else {
 					completion(.failure(.decodingJSON))
 					return
 				}

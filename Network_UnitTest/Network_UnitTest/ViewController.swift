@@ -16,8 +16,10 @@ class ViewController: UIViewController {
 
 	@IBAction func networkTestButtonAction(_ sender: Any) {
 		let networkManager = NetworkManager()
+		let requestModel = JokesAPI()
 
-		networkManager.fetchRequest(url: JokesAPI.randomJokes.url, type: .GET) { (result: Result<JokeResponse, APIError>) in
+
+		networkManager.fetch(method: .GET, request: requestModel) { (result: Result<JokesAPI.Response, APIError>) in
 			switch result {
 				case .success(let model):
 					print(model)
@@ -26,6 +28,16 @@ class ViewController: UIViewController {
 					print(error)
 			}
 		}
+
+//		networkManager.fetchRequest(url: JokesAPI.randomJokes.url, type: .GET) { (result: Result<JokeResponse, APIError>) in
+//			switch result {
+//				case .success(let model):
+//					print(model)
+//					self.showAlert(message: model.value.joke)
+//				case .failure(let error):
+//					print(error)
+//			}
+//		}
 	}
 
 	private func showAlert(message: String) {
