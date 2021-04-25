@@ -15,19 +15,6 @@ protocol URLSessionProtocol {
 extension URLSession: URLSessionProtocol {
 }
 
-enum APIError: Error {
-	case unknown
-	case httpStatus
-	case decodingJSON
-	case dataNil
-//	var errorDescription: String? { "unknownError" }
-}
-
-enum HttpMethod: String {
-	case GET
-	case POST
-}
-
 protocol NetworkProtocol {
 	init(session: URLSessionProtocol)
 	var session: URLSessionProtocol { get set }
