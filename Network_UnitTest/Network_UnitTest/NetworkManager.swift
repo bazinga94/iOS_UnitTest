@@ -18,8 +18,8 @@ extension URLSession: URLSessionProtocol {
 protocol NetworkProtocol {
 	init(session: URLSessionProtocol)
 	var session: URLSessionProtocol { get set }
-	func fetch<T: NetworkInterface & RequestableBody>(method: HttpMethod, request: T, completion: @escaping ResultCallback<T.Response>)
-	func fetch<T: NetworkInterface>(method: HttpMethod, request: T, completion: @escaping ResultCallback<T.Response>)
+	func fetch<T: NetworkInterface & RequestableBody>(request: T, completion: @escaping ResultCallback<T.Response>)
+	func fetch<T: NetworkInterface>(request: T, completion: @escaping ResultCallback<T.Response>)
 }
 
 extension NetworkProtocol {
@@ -41,15 +41,15 @@ class NetworkManager: NetworkProtocol {
 		self.session = session
 	}
 
-	/// POST method network request
-	func fetch<T>(method: HttpMethod = .POST, request: T, completion: @escaping ResultCallback<T.Response>) where T : NetworkInterface, T : RequestableBody {
+	/// network request with httpBody
+	func fetch<T>(request: T, completion: @escaping ResultCallback<T.Response>) where T : NetworkInterface, T : RequestableBody {
 
 		guard let encodedModel = try? JSONEncoder().encode(request.body) else {
 			completion(.failure(.encodingModel))
 			return
 		}
 		var urlRequest = URLRequest(url: request.url)
-		urlRequest.httpMethod = method.rawValue
+		urlRequest.httpMethod = request.method.rawValue
 		urlRequest.httpBody = encodedModel
 
 		let task: URLSessionDataTask = session
@@ -73,11 +73,11 @@ class NetworkManager: NetworkProtocol {
 		task.resume()
 	}
 
-	/// GET method network request
-	func fetch<T>(method: HttpMethod = .GET, request: T, completion: @escaping ResultCallback<T.Response>) where T : NetworkInterface {
+	/// network request without httpBody
+	func fetch<T>(request: T, completion: @escaping ResultCallback<T.Response>) where T : NetworkInterface {
 
 		var urlRequest = URLRequest(url: request.url)
-		urlRequest.httpMethod = method.rawValue
+		urlRequest.httpMethod = request.method.rawValue
 
 		let task: URLSessionDataTask = session
 			.dataTask(with: urlRequest) { data, urlResponse, error in

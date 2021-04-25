@@ -7,11 +7,12 @@
 import Foundation
 
 struct JokesAPI: NetworkInterface {
-	internal typealias Response = JokeResponse
+	typealias Response = JokeResponse
 
 	static let baseURL = "https://api.icndb.com/"
 	private var path: String { "jokes/random" }
 	var url: URL { URL(string: JokesAPI.baseURL + path)! }
+	var method: HttpMethod { .GET }
 
 	struct JokeResponse: APIResponse {
 		struct Joke: Decodable {

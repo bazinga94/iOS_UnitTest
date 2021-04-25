@@ -19,7 +19,7 @@ class ViewController: UIViewController {
 		let requestModel = JokesAPI()
 
 
-		networkManager.fetch(method: .GET, request: requestModel) { (result: Result<JokesAPI.Response, APIError>) in
+		networkManager.fetch(request: requestModel) { (result: Result<JokesAPI.Response, APIError>) in
 			switch result {
 				case .success(let model):
 					print(model)

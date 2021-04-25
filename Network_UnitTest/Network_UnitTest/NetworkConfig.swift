@@ -10,6 +10,7 @@ import Foundation
 protocol NetworkInterface {
 	associatedtype Response: APIResponse
 	var url: URL { get }
+	var method: HttpMethod { get }
 	var responseSample: Data { get }
 }
 

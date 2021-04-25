@@ -72,7 +72,7 @@ class Network_UnitTestTests: XCTestCase {
 		let expectation = XCTestExpectation()	// 비동기 작업이 완료될 때 까지 대기 하다가 처리 필요
 		let response = try? JSONDecoder().decode(JokesAPI.Response.self, from: JokesAPI().responseSample)
 
-		networkManager.fetch(method: .GET, request: JokesAPI()) { (result: Result<JokesAPI.Response, APIError>) in
+		networkManager.fetch(request: JokesAPI()) { (result: Result<JokesAPI.Response, APIError>) in
 			switch result {
 				case .success(let model):
 					XCTAssertEqual(model.value.id, response?.value.id)
@@ -92,7 +92,7 @@ class Network_UnitTestTests: XCTestCase {
 		networkManager = .init(session: MockURLSession(makeRequestFail: true))
 		let expectation = XCTestExpectation()
 
-		networkManager.fetch(method: .GET, request: JokesAPI()) { (result: Result<JokesAPI.Response, APIError>) in
+		networkManager.fetch(request: JokesAPI()) { (result: Result<JokesAPI.Response, APIError>) in
 			switch result {
 				case .success:
 					XCTFail()
