@@ -28,17 +28,26 @@ enum HttpMethod: String {
 	case POST
 }
 
-class NetworkManager: NetworkProtocol {
-	var session: URLSessionProtocol
+protocol NetworkProtocol {
+	init(session: URLSessionProtocol)
+	var session: URLSessionProtocol { get set }
+	func fetchRequest<T: Decodable>(url: URL, type: HttpMethod, body: String, completion: @escaping (Result<T, APIError>) -> Void)
+}
 
-	required init(session: URLSessionProtocol) {
+extension NetworkProtocol {
+	init(session: URLSessionProtocol = URLSession.shared) {
+		self.init(session: session)
 		self.session = session
 	}
 
-	func fetchRequest<T>(url: URL, type: HttpMethod, body: String, completion: @escaping (Result<T, APIError>) -> Void) where T : Decodable {
+	var session: URLSessionProtocol {
+		return URLSession.shared
+	}
+
+	func fetchRequest<T>(url: URL, type: HttpMethod, body: String? = nil, completion: @escaping (Result<T, APIError>) -> Void) where T : Decodable {
 		var request = URLRequest(url: url)
 		request.httpMethod = type.rawValue
-		request.httpBody = body.data(using: .utf8)
+		request.httpBody = body?.data(using: .utf8)
 
 		let task: URLSessionDataTask = session
 			.dataTask(with: request) { data, urlResponse, error in
@@ -62,26 +71,17 @@ class NetworkManager: NetworkProtocol {
 	}
 }
 
-protocol NetworkProtocol {
-	init(session: URLSessionProtocol)
-	var session: URLSessionProtocol { get set }
-	func fetchRequest<T: Decodable>(url: URL, type: HttpMethod, body: String, completion: @escaping (Result<T, APIError>) -> Void)
-}
+class NetworkManager: NetworkProtocol {
+	var session: URLSessionProtocol
 
-extension NetworkProtocol {
-	init(session: URLSessionProtocol = URLSession.shared) {
-		self.init(session: session)
+	required init(session: URLSessionProtocol) {
 		self.session = session
 	}
 
-	var session: URLSessionProtocol {
-		return URLSession.shared
-	}
-
-	func fetchRequest<T>(url: URL, type: HttpMethod, body: String? = nil, completion: @escaping (Result<T, APIError>) -> Void) where T : Decodable {
+	func fetchRequest<T>(url: URL, type: HttpMethod, body: String, completion: @escaping (Result<T, APIError>) -> Void) where T : Decodable {
 		var request = URLRequest(url: url)
 		request.httpMethod = type.rawValue
-		request.httpBody = body?.data(using: .utf8)
+		request.httpBody = body.data(using: .utf8)
 
 		let task: URLSessionDataTask = session
 			.dataTask(with: request) { data, urlResponse, error in
