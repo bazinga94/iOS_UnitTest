@@ -18,7 +18,7 @@ extension URLSession: URLSessionProtocol {
 protocol NetworkProtocol {
 	init(session: URLSessionProtocol)
 	var session: URLSessionProtocol { get set }
-	func fetchRequest<T: Decodable>(url: URL, type: HttpMethod, body: String, completion: @escaping (Result<T, APIError>) -> Void)
+	func fetchRequest<T: Decodable>(url: URL, type: HttpMethod, body: String, completion: @escaping ResultCallback<T>)
 }
 
 extension NetworkProtocol {

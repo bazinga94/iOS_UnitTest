@@ -19,3 +19,5 @@ enum HttpMethod: String {
 	case GET
 	case POST
 }
+
+typealias ResultCallback<Response> = (Result<Response, APIError>) -> Void
